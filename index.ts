@@ -42,6 +42,7 @@ const db = client.db(process.env.AUTH_DB_NAME);
 
 const booksCollection = db.collection("books");
 const cartCollection = db.collection("cart");
+const usersCollection = db.collection("user");
 
 async function connectDB() {
     try {
@@ -193,6 +194,25 @@ app.delete("/books/:id", async (req, res) => {
         res.status(500).json({
             message: "Delete Failed",
         });
+    }
+});
+
+// ================= Dashboard Stats =================
+
+app.get("/dashboard", async (req, res) => {
+    try {
+        const totalBooks = await booksCollection.countDocuments();
+        const totalUsers = await usersCollection.countDocuments();
+        const totalOrders = await cartCollection.countDocuments();
+
+        res.send({
+            totalBooks,
+            totalOrders,
+            totalUsers,
+        });
+    } catch (error) {
+        console.log(error);
+        res.status(500).send({ message: "Failed to load dashboard stats" });
     }
 });
 
